@@ -4,6 +4,8 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 // Importa tus componentes de pantalla aquí
 import Sesion from './src/screens/Sesion.js';
+import RecuperarContrasenia from './src/screens/RecuperarContrasenia.js';
+import NuevaContrasenia from './src/screens/NuevaContrasenia.js'
 import Registro from './src/screens/Registro.js';
 import TabNavigator from './src/tabNavigator/TabNavigator.js';
 
@@ -19,6 +21,8 @@ export default function App() {
           headerShown: false
         }}>
         <Stack.Screen name="Sesion" component={Sesion} />
+        <Stack.Screen name="RecuperarContrasenia" component={RecuperarContrasenia} />
+        <Stack.Screen name="NuevaContrasenia" component={NuevaContrasenia} />
         <Stack.Screen name="Registro" component={Registro} />
         <Stack.Screen name="TabNavigator" component={TabNavigator} />
       </Stack.Navigator>

@@ -1,28 +1,24 @@
 import React from 'react';
 import { StyleSheet, Text, TextInput, View, TouchableOpacity, ScrollView, Image } from 'react-native';
 
-export default function Registro({ navigation }) {
+export default function RecuperarContrasenia({ navigation }) {
 
-    const irLogin = async () => {
-        navigation.navigate('Sesion');
+    const irContra = async () => {
+        navigation.navigate('NuevaContrasenia');
     };
+
     return (
         <ScrollView contentContainerStyle={styles.container}>
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => navigation.goBack()}>
                     <Image source={require('../img/atras.png')} style={styles.backIcon} />
                 </TouchableOpacity>
-                <Text style={styles.title}>Registro</Text>
+                <Text style={styles.title}>Recuperación de contraseña</Text>
             </View>
-            <TextInput style={styles.input} placeholder="Nombre" placeholderTextColor="#000" />
-            <TextInput style={styles.input} placeholder="Apellido" placeholderTextColor="#000" />
-            <TextInput style={styles.input} placeholder="Alias" placeholderTextColor="#000" />
+            <Text style={styles.registerText}>Ingresa tu correo electrónico</Text>
             <TextInput style={styles.input} placeholder="Correo electrónico" placeholderTextColor="#000" keyboardType="email-address" />
-            <TextInput style={styles.input} placeholder="Número de teléfono" placeholderTextColor="#000" keyboardType="phone-pad" />
-            <TextInput style={styles.input} placeholder="Contraseña" placeholderTextColor="#000" secureTextEntry />
-            <TextInput style={styles.input} placeholder="Confirmar contraseña" placeholderTextColor="#000" secureTextEntry />
-            <TouchableOpacity onPress={irLogin} style={styles.button}>
-                <Text style={styles.buttonText}>REGISTRARSE</Text>
+            <TouchableOpacity onPress={irContra} style={styles.button}>
+                <Text style={styles.buttonText}>ENVIAR CÓDIGO</Text>
             </TouchableOpacity>
         </ScrollView>
     );
@@ -32,10 +28,13 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#fff',
-        alignItems: 'center',
+        alignItems: 'left',
         justifyContent: 'center',
         padding: 16,
         paddingTop: 50,
+    },
+    registerText:{
+        justifyContent: 'flex-start'
     },
     header: {
         flexDirection: 'row',
@@ -57,6 +56,7 @@ const styles = StyleSheet.create({
         marginBottom: 24,
     },
     input: {
+        marginTop: 12,
         width: '100%',
         height: 50,
         borderColor: '#000',

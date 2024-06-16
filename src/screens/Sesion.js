@@ -5,18 +5,22 @@ export default function Sesion({ navigation }) {
 
     const handlerLogin = async () => {
         navigation.navigate('TabNavigator');
-      };
+    };
 
     const irRegistrar = async () => {
         navigation.navigate('Registro');
     };
+
+    const Recuperar = async () => {
+        navigation.navigate('RecuperarContrasenia');
+    };    
 
     return (
         <View style={styles.container}>
             <Text style={styles.welcomeText}>Bienvenido</Text>
             <TextInput style={styles.input} placeholder="Alias" />
             <TextInput style={styles.input} placeholder="Contraseña" secureTextEntry />
-            <TouchableOpacity>
+            <TouchableOpacity onPress={Recuperar}>
                 <Text style={styles.forgotPasswordText}>¿Olvidaste tu contraseña?</Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={irRegistrar}>

@@ -1,28 +1,21 @@
 import React from 'react';
-import { StyleSheet, Text, TextInput, View, TouchableOpacity, ScrollView, Image } from 'react-native';
+import { StyleSheet, Text, TextInput, View, TouchableOpacity, ScrollView } from 'react-native';
 
-export default function Registro({ navigation }) {
+export default function NuevaContrasenia({ navigation }) {
 
     const irLogin = async () => {
         navigation.navigate('Sesion');
     };
+
     return (
         <ScrollView contentContainerStyle={styles.container}>
             <View style={styles.header}>
-                <TouchableOpacity onPress={() => navigation.goBack()}>
-                    <Image source={require('../img/atras.png')} style={styles.backIcon} />
-                </TouchableOpacity>
-                <Text style={styles.title}>Registro</Text>
+                <Text style={styles.title}>Actualizar contraseña</Text>
             </View>
-            <TextInput style={styles.input} placeholder="Nombre" placeholderTextColor="#000" />
-            <TextInput style={styles.input} placeholder="Apellido" placeholderTextColor="#000" />
-            <TextInput style={styles.input} placeholder="Alias" placeholderTextColor="#000" />
-            <TextInput style={styles.input} placeholder="Correo electrónico" placeholderTextColor="#000" keyboardType="email-address" />
-            <TextInput style={styles.input} placeholder="Número de teléfono" placeholderTextColor="#000" keyboardType="phone-pad" />
-            <TextInput style={styles.input} placeholder="Contraseña" placeholderTextColor="#000" secureTextEntry />
+            <TextInput style={styles.input} placeholder="Nueva contraseña" placeholderTextColor="#000" secureTextEntry />
             <TextInput style={styles.input} placeholder="Confirmar contraseña" placeholderTextColor="#000" secureTextEntry />
             <TouchableOpacity onPress={irLogin} style={styles.button}>
-                <Text style={styles.buttonText}>REGISTRARSE</Text>
+                <Text style={styles.buttonText}>GUARDAR</Text>
             </TouchableOpacity>
         </ScrollView>
     );
@@ -37,9 +30,13 @@ const styles = StyleSheet.create({
         padding: 16,
         paddingTop: 50,
     },
+    registerText: {
+        justifyContent: 'center'
+    },
     header: {
         flexDirection: 'row',
         alignItems: 'center',
+        justifyContent: 'center',
         width: '100%',
         marginBottom: 24,
     },
@@ -50,6 +47,7 @@ const styles = StyleSheet.create({
     },
     title: {
         fontSize: 32,
+        justifyContent: 'center',
     },
     subtitle: {
         fontSize: 18,
@@ -57,6 +55,7 @@ const styles = StyleSheet.create({
         marginBottom: 24,
     },
     input: {
+        marginTop: 12,
         width: '100%',
         height: 50,
         borderColor: '#000',
