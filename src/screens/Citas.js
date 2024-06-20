@@ -3,9 +3,13 @@ import { StyleSheet, Text, View, TextInput, TouchableOpacity, Alert } from 'reac
 import { Picker } from '@react-native-picker/picker';
 
 export default function Citas({ navigation }) {
+  // Estados para manejar los datos del formulario
+  const [service, setService] = useState(''); // Estado para el servicio seleccionado
+  const [date, setDate] = useState(''); // Estado para la fecha de la cita
+  const [time, setTime] = useState(''); // Estado para la hora de la cita
 
   useEffect(() => {
-    // Título del encabezado de navegación
+    // Configura el título del encabezado de navegación
     navigation.setOptions({
       headerTitle: () => (
         <View style={styles.headerTitleContainer}>

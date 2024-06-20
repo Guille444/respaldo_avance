@@ -5,7 +5,7 @@ import { Picker } from '@react-native-picker/picker';
 export default function RegistroVehiculo({ navigation }) {
 
   useEffect(() => {
-    // Título del encabezado de navegación
+    // Configura el título del encabezado de navegación
     navigation.setOptions({
       headerTitle: () => (
         <View style={styles.headerTitleContainer}>
@@ -15,6 +15,18 @@ export default function RegistroVehiculo({ navigation }) {
       headerTitleAlign: 'center',
     });
   }, []);
+
+  // Estados para manejar los datos del formulario
+  const [modelo, setModelo] = useState('');
+  const [año, setAño] = useState('');
+  const [matricula, setMatricula] = useState('');
+  const [color, setColor] = useState('');
+  const [vin, setVin] = useState('');
+
+  // Función para manejar el registro del vehículo
+  const registrarVehiculo = () => {
+
+  };
 
   // Renderización del componente
   return (
@@ -35,6 +47,7 @@ export default function RegistroVehiculo({ navigation }) {
         <Picker.Item label="Chevrolet Cruze" value="Chevrolet Cruze" />
         <Picker.Item label="BMW Serie 3" value="BMW Serie 3" />
         <Picker.Item label="Audi A4" value="Audi A4" />
+        {/* Agrega más opciones de modelo según sea necesario */}
       </Picker>
 
       {/* Campos de entrada para otros datos del vehículo */}

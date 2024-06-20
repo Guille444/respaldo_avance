@@ -1,7 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, Image } from 'react-native';
 
 export default function Perfil({ navigation }) {
+
+  // Función para navegar hacia la pantalla de Sesion
+  const irSesion = async () => {
+    navigation.navigate('Sesion');
+  };
 
   useEffect(() => {
     // Título del encabezado de navegación
@@ -12,6 +17,15 @@ export default function Perfil({ navigation }) {
         </View>
       ),
       headerTitleAlign: 'center',
+      headerRight: () => (
+        <TouchableOpacity onPress={irSesion} style={styles.headerRightContainer}>
+          <Text style={styles.logoutText}>Cerrar sesión</Text>
+          <Image
+            source={require('../img/sesion.png')} // Ruta a tu imagen
+            style={styles.logoutIcon}
+          />
+        </TouchableOpacity>
+      ),
     });
   }, []);
 
@@ -109,5 +123,19 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 20,
     fontWeight: 'bold',
+  },
+  headerRightContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 50,
+  },
+  logoutText: {
+    fontSize: 16,
+    marginRight: 8,
+  },
+  logoutIcon: {
+    width: 24,
+    height: 24,
+    marginRight: 16,
   },
 });
