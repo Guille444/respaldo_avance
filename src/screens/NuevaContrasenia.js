@@ -3,6 +3,7 @@ import { StyleSheet, Text, TextInput, View, TouchableOpacity, ScrollView } from 
 
 export default function NuevaContrasenia({ navigation }) {
 
+    // Función para navegar hacia la pantalla de Sesion
     const irLogin = async () => {
         navigation.navigate('Sesion');
     };

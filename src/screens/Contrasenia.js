@@ -1,11 +1,11 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, TextInput, View, TouchableOpacity, ScrollView, Image } from 'react-native';
 
-export default function RecuperarContrasenia({ navigation }) {
+export default function Contrasenia({ navigation }) {
 
-    // Función para navegar hacia la pantalla de NuevaContrasenia
-    const irContra = async () => {
-        navigation.navigate('NuevaContrasenia');
+    // Función para navegar hacia la pantalla de Perfil
+    const irPerfil = async () => {
+        navigation.navigate('Perfil');
     };
 
     return (
@@ -14,12 +14,13 @@ export default function RecuperarContrasenia({ navigation }) {
                 <TouchableOpacity onPress={() => navigation.goBack()}>
                     <Image source={require('../img/atras.png')} style={styles.backIcon} />
                 </TouchableOpacity>
-                <Text style={styles.title}>Recuperación de contraseña</Text>
+                <Text style={styles.title}>Cambiar contraseña</Text>
             </View>
-            <Text style={styles.registerText}>Ingresa tu correo electrónico</Text>
-            <TextInput style={styles.input} placeholder="Correo electrónico" placeholderTextColor="#000" keyboardType="email-address" />
-            <TouchableOpacity onPress={irContra} style={styles.button}>
-                <Text style={styles.buttonText}>ENVIAR CÓDIGO</Text>
+            <TextInput style={styles.input} placeholder="Contraseña actual" placeholderTextColor="#000" secureTextEntry />
+            <TextInput style={styles.input} placeholder="Nueva contraseña" placeholderTextColor="#000" secureTextEntry />
+            <TextInput style={styles.input} placeholder="Confirmar contraseña" placeholderTextColor="#000" secureTextEntry />
+            <TouchableOpacity onPress={irPerfil} style={styles.button}>
+                <Text style={styles.buttonText}>GUARDAR</Text>
             </TouchableOpacity>
         </ScrollView>
     );
@@ -77,6 +78,13 @@ const styles = StyleSheet.create({
     buttonText: {
         color: '#fff',
         fontSize: 18,
+        fontWeight: 'bold',
+    },
+    headerTitleContainer: {
+        alignItems: 'center',
+    },
+    headerTitle: {
+        fontSize: 20,
         fontWeight: 'bold',
     },
 });

@@ -3,9 +3,11 @@ import { StyleSheet, Text, TextInput, View, TouchableOpacity, ScrollView, Image 
 
 export default function Registro({ navigation }) {
 
+    // Función para navegar hacia la pantalla de Sesion
     const irLogin = async () => {
         navigation.navigate('Sesion');
     };
+
     return (
         <ScrollView contentContainerStyle={styles.container}>
             <View style={styles.header}>

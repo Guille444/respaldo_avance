@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Alert, Image } from 'react-native';
 
 export default function Inicio({ navigation }) {
+
+  // Título del encabezado de navegación
   useEffect(() => {
     navigation.setOptions({
       headerTitle: () => (
@@ -21,7 +23,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   headerTitleContainer: {
-    flexDirection: 'row', // Para alinear el título al centro
+    flexDirection: 'row',
   },
   headerTitle: {
     fontSize: 18,

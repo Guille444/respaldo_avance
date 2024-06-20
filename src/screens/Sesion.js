@@ -2,18 +2,20 @@ import React from 'react';
 import { StyleSheet, Text, View, TextInput, TouchableOpacity } from 'react-native';
 
 export default function Sesion({ navigation }) {
-
+    // Función para manejar la navegación hacia la pantalla de TabNavigator
     const handlerLogin = async () => {
         navigation.navigate('TabNavigator');
     };
 
+    // Función para navegar hacia la pantalla de registro
     const irRegistrar = async () => {
         navigation.navigate('Registro');
     };
 
+    // Función para navegar hacia la pantalla de recuperación de contraseña
     const Recuperar = async () => {
         navigation.navigate('RecuperarContrasenia');
-    };    
+    };
 
     return (
         <View style={styles.container}>
