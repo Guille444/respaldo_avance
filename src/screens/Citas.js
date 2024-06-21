@@ -1,12 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, Alert } from 'react-native';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { Picker } from '@react-native-picker/picker';
 
 export default function Citas({ navigation }) {
-  // Estados para manejar los datos del formulario
-  const [service, setService] = useState(''); // Estado para el servicio seleccionado
-  const [date, setDate] = useState(''); // Estado para la fecha de la cita
-  const [time, setTime] = useState(''); // Estado para la hora de la cita
 
   useEffect(() => {
     // Configura el título del encabezado de navegación
@@ -20,10 +17,18 @@ export default function Citas({ navigation }) {
     });
   }, []);
 
-  // Función para manejar la acción de agendar cita
-  const handleSchedule = () => {
-    // Muestra una alerta con los detalles de la cita seleccionada
-    Alert.alert('Cita agendada', `Servicio: ${service}\nFecha: ${date}\nHora: ${time}`);
+  const [date, setDate] = useState(new Date());
+  const [mode, setMode] = useState('date');
+  const [show, setShow] = useState(false);
+
+
+  const showMode = (currentMode) => {
+    setShow(true);
+    setMode(currentMode);
+  }
+
+  const showDatepicker = () => {
+    showMode('date');
   };
 
   // Renderización del componente
@@ -34,7 +39,6 @@ export default function Citas({ navigation }) {
 
       {/* Selector de servicio */}
       <Picker
-        selectedValue={service}
         style={styles.picker}
         onValueChange={(itemValue, itemIndex) => setService(itemValue)}
       >
@@ -46,23 +50,23 @@ export default function Citas({ navigation }) {
       </Picker>
 
       {/* Campo de entrada para la fecha de la cita */}
-      <TextInput
-        style={styles.input}
-        placeholder="Fecha de la cita"
-        value={date}
-        onChangeText={setDate}
-      />
-
-      {/* Campo de entrada para la hora de la cita */}
-      <TextInput
-        style={styles.input}
-        placeholder="Hora de la cita"
-        value={time}
-        onChangeText={setTime}
-      />
+      <View style={styles.contenedorFecha}>
+        <Text style={styles.fecha}>Fecha Nacimiento</Text>
+        <TouchableOpacity onPress={showDatepicker}><Text style={styles.fechaSeleccionar}>Seleccionar Fecha:</Text></TouchableOpacity>
+        {show && (
+          <DateTimePicker
+            testID="dateTimePicker"
+            value={date}
+            mode={mode}
+            is24Hour={true}
+            minimumDate={new Date(new Date().getFullYear() - 100, new Date().getMonth(), new Date().getDate())} // Fecha mínima permitida (100 años atrás desde la fecha actual)
+            maximumDate={new Date()} // Fecha máxima permitida (fecha actual)
+          />
+        )}
+      </View>
 
       {/* Botón para agendar la cita */}
-      <TouchableOpacity style={styles.button} onPress={handleSchedule}>
+      <TouchableOpacity style={styles.button}>
         <Text style={styles.buttonText}>AGENDAR</Text>
       </TouchableOpacity>
     </View>
@@ -99,6 +103,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     alignItems: 'center',
     width: '100%',
+    marginTop: 10,
   },
   buttonText: {
     color: '#fff',
@@ -118,5 +123,10 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     backgroundColor: '#fff',
     borderColor: '#000',
+  },
+  fechaSeleccionar: {
+    fontWeight: '700',
+    color: '#322C2B',
+    textDecorationLine: 'underline',
   },
 });
