@@ -1,15 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, Image } from 'react-native';
+import AwesomeAlert from 'react-native-awesome-alerts';
+import * as Constantes from '../../utils/constantes';
 
 export default function Perfil({ navigation }) {
-
-  // Función para navegar hacia la pantalla de Sesion
-  const irSesion = async () => {
-    navigation.navigate('Sesion');
-  };
+  const ip = Constantes.IP;
 
   useEffect(() => {
-    // Título del encabezado de navegación
     navigation.setOptions({
       headerTitle: () => (
         <View style={styles.headerTitleContainer}>
@@ -18,10 +15,10 @@ export default function Perfil({ navigation }) {
       ),
       headerTitleAlign: 'center',
       headerRight: () => (
-        <TouchableOpacity onPress={irSesion} style={styles.headerRightContainer}>
+        <TouchableOpacity onPress={handleLogout} style={styles.headerRightContainer}>
           <Text style={styles.logoutText}>Cerrar sesión</Text>
           <Image
-            source={require('../img/sesion.png')} // Ruta a tu imagen
+            source={require('../img/sesion.png')}
             style={styles.logoutIcon}
           />
         </TouchableOpacity>
@@ -29,58 +26,161 @@ export default function Perfil({ navigation }) {
     });
   }, []);
 
-  const [nombre, setNombre] = useState('');
-  const [apellido, setApellido] = useState('');
-  const [alias, setAlias] = useState('');
-  const [email, setEmail] = useState('');
-  const [telefono, setTelefono] = useState('');
-
   const irCambiarContraseña = async () => {
-    navigation.navigate('Contrasenia'); // Navegar a la pantalla de cambio de contraseña
+    navigation.navigate('Contrasenia');
   };
 
-  // Renderización del componente
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [alertMessage, setAlertMessage] = useState('');
+  const [alertType, setAlertType] = useState('success');
+  const [alertTitle, setAlertTitle] = useState('');
+
+  const showAlert = (title, message, type) => {
+    setAlertTitle(title);
+    setAlertMessage(message);
+    setAlertType(type);
+    setAlertVisible(true);
+  };
+
+  const hideAlert = () => {
+    setAlertVisible(false);
+  };
+
+  const [profileData, setProfileData] = useState({
+    nombre_cliente: '',
+    apellido_cliente: '',
+    alias_cliente: '',
+    contacto_cliente: '',
+    correo_cliente: ''
+  });
+
+  const fetchProfileData = async () => {
+    try {
+      const response = await fetch(`${ip}/services/public/cliente.php?action=readProfile`, {
+        method: 'POST'
+      });
+      const data = await response.json();
+      if (data.status) {
+        setProfileData(data.dataset);
+      } else {
+        showAlert('Error', 'No se pudo obtener los datos del perfil', 'error');
+      }
+    } catch (error) {
+      console.error(error, "Error desde Catch");
+      showAlert('Error', 'Ocurrió un error al obtener los datos del perfil', 'error');
+    }
+  };
+
+  useEffect(() => {
+    fetchProfileData();
+  }, []);
+
+  const handleLogout = async () => {
+    try {
+      const response = await fetch(`${ip}/services/public/cliente.php?action=logOut`, {
+        method: 'GET'
+      });
+      const data = await response.json();
+      if (data.status) {
+        showAlert('Éxito', "Has cerrado sesión exitosamente.", 'success');
+        setTimeout(() => {
+          hideAlert();
+          navigation.navigate('Sesion');
+        }, 2000);
+      } else {
+        showAlert('Error', "Error al cerrar sesión.", 'error');
+      }
+    } catch (error) {
+      showAlert('Error de red', "Ocurrió un error de red.", 'error');
+    }
+  };
+
+  const editProfile = async () => {
+    try {
+      const formData = new FormData();
+      formData.append('nombreCliente', profileData.nombre_cliente);
+      formData.append('apellidoCliente', profileData.apellido_cliente);
+      formData.append('aliasCliente', profileData.alias_cliente);
+      formData.append('contactoCliente', profileData.contacto_cliente);
+      formData.append('correoCliente', profileData.correo_cliente);
+
+      const response = await fetch(`${ip}/services/public/cliente.php?action=editProfile`, {
+        method: 'POST',
+        body: formData,
+      });
+      const data = await response.json();
+      if (data.status) {
+        showAlert('Éxito', data.message, 'success');
+      } else {
+        showAlert('Error', data.error, 'error');
+      }
+    } catch (error) {
+      console.error('Error :', error);
+      showAlert('Error', 'Error al editar', 'error');
+    }
+  };
+
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Perfil</Text>
+      <Text style={styles.title}>Mi información</Text>
       <TextInput
         style={styles.input}
         placeholder="Nombre"
-        value={nombre}
-        onChangeText={setNombre}
+        value={profileData.nombre_cliente}
+        onChangeText={(text) => setProfileData((prevData) => ({ ...prevData, nombre_cliente: text }))}
       />
       <TextInput
         style={styles.input}
         placeholder="Apellido"
-        value={apellido}
-        onChangeText={setApellido}
+        value={profileData.apellido_cliente}
+        onChangeText={(text) => setProfileData((prevData) => ({ ...prevData, apellido_cliente: text }))}
       />
       <TextInput
         style={styles.input}
         placeholder="Alias"
-        value={alias}
-        onChangeText={setAlias}
+        value={profileData.alias_cliente}
+        onChangeText={(text) => setProfileData((prevData) => ({ ...prevData, alias_cliente: text }))}
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="Número de teléfono"
+        value={profileData.contacto_cliente}
+        onChangeText={(text) => setProfileData((prevData) => ({ ...prevData, contacto_cliente: text }))}
+        keyboardType="phone-pad"
       />
       <TextInput
         style={styles.input}
         placeholder="Correo electrónico"
-        value={email}
-        onChangeText={setEmail}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Numero de telefono"
-        value={telefono}
-        onChangeText={setTelefono}
+        value={profileData.correo_cliente}
+        onChangeText={(text) => setProfileData((prevData) => ({ ...prevData, correo_cliente: text }))}
       />
       <TouchableOpacity onPress={irCambiarContraseña} style={styles.button}>
         <Text style={styles.buttonText}>CAMBIAR CONTRASEÑA</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.button}>
+      <TouchableOpacity onPress={editProfile} style={styles.button}>
         <Text style={styles.buttonText}>GUARDAR</Text>
       </TouchableOpacity>
+
+      <AwesomeAlert
+        show={alertVisible}
+        showProgress={false}
+        title={alertTitle}
+        message={alertMessage}
+        closeOnTouchOutside={!alertType.includes('progress')}
+        closeOnHardwareBackPress={!alertType.includes('progress')}
+        showCancelButton={false}
+        showConfirmButton={true}
+        confirmText="OK"
+        confirmButtonColor="gray"
+        onConfirmPressed={hideAlert}
+        contentContainerStyle={styles.alertContentContainer}
+        titleStyle={styles.alertTitle}
+        messageStyle={styles.alertMessage}
+        confirmButtonStyle={styles.alertConfirmButton}
+        confirmButtonTextStyle={styles.alertConfirmButtonText}
+      />
     </View>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
@@ -137,5 +237,25 @@ const styles = StyleSheet.create({
     width: 24,
     height: 24,
     marginRight: 16,
+  },
+  alertContentContainer: {
+    borderRadius: 10,
+    padding: 20,
+  },
+  alertTitle: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  alertMessage: {
+    fontSize: 18,
+    marginBottom: 10,
+  },
+  alertConfirmButton: {
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+  },
+  alertConfirmButtonText: {
+    fontSize: 16,
   },
 });

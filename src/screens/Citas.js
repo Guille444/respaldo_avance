@@ -1,12 +1,11 @@
-import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, Alert } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, Text, View, TouchableOpacity, Platform } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Picker } from '@react-native-picker/picker';
 
 export default function Citas({ navigation }) {
 
   useEffect(() => {
-    // Configura el título del encabezado de navegación
     navigation.setOptions({
       headerTitle: () => (
         <View style={styles.headerTitleContainer}>
@@ -20,7 +19,8 @@ export default function Citas({ navigation }) {
   const [date, setDate] = useState(new Date());
   const [mode, setMode] = useState('date');
   const [show, setShow] = useState(false);
-
+  const [service, setService] = useState('');
+  const [vehicle, setVehicle] = useState('');
 
   const showMode = (currentMode) => {
     setShow(true);
@@ -31,34 +31,52 @@ export default function Citas({ navigation }) {
     showMode('date');
   };
 
-  // Renderización del componente
+  const handleConfirm = (event, selectedDate) => {
+    setShow(Platform.OS === 'ios'); // Hides the picker for Android after selecting a date
+    if (event.type === 'set' && selectedDate) {
+      setDate(selectedDate);
+    }
+  };
+
   return (
     <View style={styles.container}>
       {/* Título de la pantalla */}
       <Text style={styles.title}>Agendar cita</Text>
-
+      {/* Selector de vehículo */}
+      <View style={styles.pickerContainer}>
+        <Picker
+          selectedValue={vehicle}
+          style={styles.picker}
+          onValueChange={(itemValue) => setVehicle(itemValue)}
+        >
+          <Picker.Item label="Seleccione un vehículo" value="" />
+          {/* Agrega los vehículos aquí */}
+        </Picker>
+      </View>
       {/* Selector de servicio */}
-      <Picker
-        style={styles.picker}
-        onValueChange={(itemValue, itemIndex) => setService(itemValue)}
-      >
-        <Picker.Item label="Seleccione un servicio" value="" />
-        <Picker.Item label="Servicio 1" value="Servicio 1" />
-        <Picker.Item label="Servicio 2" value="Servicio 2" />
-        <Picker.Item label="Servicio 3" value="Servicio 3" />
-        {/* Puedes añadir más servicios según sea necesario */}
-      </Picker>
-
+      <View style={styles.pickerContainer}>
+        <Picker
+          selectedValue={service}
+          style={styles.picker}
+          onValueChange={(itemValue) => setService(itemValue)}
+        >
+          <Picker.Item label="Seleccione un servicio" value="" />
+          {/* Puedes añadir más servicios según sea necesario */}
+        </Picker>
+      </View>
       {/* Campo de entrada para la fecha de la cita */}
-      <View style={styles.contenedorFecha}>
-        <Text style={styles.fecha}>Fecha Nacimiento</Text>
-        <TouchableOpacity onPress={showDatepicker}><Text style={styles.fechaSeleccionar}>Seleccionar Fecha:</Text></TouchableOpacity>
+      <View style={styles.dateContainer}>
+        <Text style={styles.label}>Fecha de cita</Text>
+        <TouchableOpacity onPress={showDatepicker}>
+          <Text style={styles.dateText}>{date.toLocaleDateString()}</Text>
+        </TouchableOpacity>
         {show && (
           <DateTimePicker
-            testID="dateTimePicker"
             value={date}
             mode={mode}
             is24Hour={true}
+            onChange={handleConfirm}
+            style={styles.datePicker}
             minimumDate={new Date(new Date().getFullYear() - 100, new Date().getMonth(), new Date().getDate())} // Fecha mínima permitida (100 años atrás desde la fecha actual)
             maximumDate={new Date()} // Fecha máxima permitida (fecha actual)
           />
@@ -88,15 +106,48 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     fontStyle: 'italic',
   },
-  input: {
+  pickerContainer: {
     width: '100%',
-    height: 50,
     borderColor: '#000',
     borderWidth: 1,
-    marginBottom: 12,
-    paddingLeft: 10,
-    fontSize: 16,
+    borderRadius: 4,
+    marginBottom: 16,
+    overflow: 'hidden',
+  },
+  picker: {
+    height: 50,
+    width: '100%',
     backgroundColor: '#fff',
+  },
+  dateContainer: {
+    width: '100%',
+    borderColor: '#000',
+    borderWidth: 1,
+    borderRadius: 4,
+    padding: 10,
+    marginBottom: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  label: {
+    fontSize: 16,
+    marginBottom: 8,
+  },
+  headerTitleContainer: {
+    flexDirection: 'row',
+  },
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  dateText: {
+    fontWeight: '700',
+    color: '#322C2B',
+    textDecorationLine: 'underline',
+  },
+  datePicker: {
+    width: '100%',
   },
   button: {
     backgroundColor: '#000',
@@ -109,24 +160,5 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
-  },
-  headerTitleContainer: {
-    alignItems: 'center',
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  picker: {
-    height: 50,
-    width: '100%',
-    marginBottom: 16,
-    backgroundColor: '#fff',
-    borderColor: '#000',
-  },
-  fechaSeleccionar: {
-    fontWeight: '700',
-    color: '#322C2B',
-    textDecorationLine: 'underline',
   },
 });

@@ -14,41 +14,78 @@ export default function RegistroVehiculo({ navigation }) {
       ),
       headerTitleAlign: 'center',
     });
+
+    // Fetch modelos y marcas desde la API o base de datos
+    fetchModelos();
+    fetchMarcas();
   }, []);
 
-  // Estados para manejar los datos del formulario
+  const [modelos, setModelos] = useState([]);
+  const [marcas, setMarcas] = useState([]);
   const [modelo, setModelo] = useState('');
+  const [marca, setMarca] = useState('');
   const [año, setAño] = useState('');
   const [matricula, setMatricula] = useState('');
   const [color, setColor] = useState('');
   const [vin, setVin] = useState('');
 
-  // Función para manejar el registro del vehículo
-  const registrarVehiculo = () => {
-
+  const fetchModelos = async () => {
+    try {
+      // Reemplaza con la URL real de tu API o base de datos
+      const response = await fetch('https://tu-api/modelos');
+      const data = await response.json();
+      setModelos(data);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
-  // Renderización del componente
+  const fetchMarcas = async () => {
+    try {
+      // Reemplaza con la URL real de tu API o base de datos
+      const response = await fetch('https://tu-api/marcas');
+      const data = await response.json();
+      setMarcas(data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const registrarVehiculo = () => {
+    // Lógica para registrar el vehículo
+  };
+
   return (
     <View style={styles.container}>
-      {/* Título de la pantalla */}
       <Text style={styles.title}>Registrar vehículo</Text>
 
-      {/* Selector de modelo de vehículo */}
-      <Picker
-        selectedValue={modelo}
-        style={styles.picker}
-        onValueChange={(itemValue, itemIndex) => setModelo(itemValue)}
-      >
-        <Picker.Item label="Seleccione un modelo" value="" />
-        <Picker.Item label="Toyota Corolla" value="Toyota Corolla" />
-        <Picker.Item label="Honda Civic" value="Honda Civic" />
-        <Picker.Item label="Ford Focus" value="Ford Focus" />
-        <Picker.Item label="Chevrolet Cruze" value="Chevrolet Cruze" />
-        <Picker.Item label="BMW Serie 3" value="BMW Serie 3" />
-        <Picker.Item label="Audi A4" value="Audi A4" />
-        {/* Agrega más opciones de modelo según sea necesario */}
-      </Picker>
+      {/* Selector de marca */}
+      <View style={styles.pickerContainer}>
+        <Picker
+          selectedValue={marca}
+          style={styles.picker}
+          onValueChange={(itemValue) => setMarca(itemValue)}
+        >
+          <Picker.Item label="Seleccione una marca" value="" />
+          {marcas.map((marca) => (
+            <Picker.Item key={marca.id_marca} label={marca.nombre_marca} value={marca.id_marca} />
+          ))}
+        </Picker>
+      </View>
+
+      {/* Selector de modelo */}
+      <View style={styles.pickerContainer}>
+        <Picker
+          selectedValue={modelo}
+          style={styles.picker}
+          onValueChange={(itemValue) => setModelo(itemValue)}
+        >
+          <Picker.Item label="Seleccione un modelo" value="" />
+          {modelos.map((modelo) => (
+            <Picker.Item key={modelo.id_modelo} label={modelo.nombre_modelo} value={modelo.id_modelo} />
+          ))}
+        </Picker>
+      </View>
 
       {/* Campos de entrada para otros datos del vehículo */}
       <TextInput
@@ -76,7 +113,6 @@ export default function RegistroVehiculo({ navigation }) {
         onChangeText={setVin}
       />
 
-      {/* Botón para registrar el vehículo */}
       <TouchableOpacity onPress={registrarVehiculo} style={styles.button}>
         <Text style={styles.buttonText}>REGISTRAR VEHÍCULO</Text>
       </TouchableOpacity>
@@ -126,11 +162,17 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
   },
-  picker: {
+  pickerContainer: {
     width: '100%',
-    height: 50,
     borderColor: '#000',
+    borderWidth: 1,
+    borderRadius: 4,
     marginBottom: 16,
+    overflow: 'hidden', // Asegura que el borde redondeado se muestre correctamente
+  },
+  picker: {
+    height: 50,
+    width: '100%',
     backgroundColor: '#fff',
   },
 });
