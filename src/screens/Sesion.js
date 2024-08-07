@@ -132,7 +132,7 @@ export default function Sesion({ navigation }) {
 
     // Función para navegar hacia la pantalla de recuperación de contraseña
     const Recuperar = async () => {
-        navigation.navigate('RecuperarContrasenia');
+        navigation.navigate('RecuperarClave');
     };
 
     // Efecto para validar la sesión al montar el componente
@@ -203,26 +203,32 @@ const styles = StyleSheet.create({
         marginBottom: 40,
     },
     input: {
+        backgroundColor: '#f0f0f0', // Fondo gris claro similar al botón
         width: '100%',
         height: 50,
-        borderColor: '#000',
+        borderColor: '#ddd',
         borderWidth: 1,
-        borderRadius: 5,
-        paddingHorizontal: 10,
-        marginBottom: 20,
-        fontSize: 18,
+        marginBottom: 12,
+        paddingLeft: 10,
+        fontSize: 16,
+        borderRadius: 8, // Bordes redondeados para el input
+        backgroundColor: '#f9f9f9', // Fondo claro para los campos de entrada
     },
     forgotPasswordText: {
         fontSize: 16,
         color: '#000',
         marginBottom: 20,
         alignSelf: 'flex-start',
+        borderBottomWidth: 0.5,
+        borderBottomColor: '#000', // Color del subrayado 
     },
     registerText: {
         fontSize: 16,
         color: '#000',
-        marginBottom: 40,
+        marginBottom: 20,
         alignSelf: 'flex-start',
+        borderBottomWidth: 0.5,
+        borderBottomColor: '#000', // Color del subrayado 
     },
     loginButton: {
         width: '100%',

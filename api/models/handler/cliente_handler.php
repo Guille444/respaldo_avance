@@ -1,15 +1,14 @@
 <?php
 // Se incluye la clase para trabajar con la base de datos.
 require_once('../../helpers/database.php');
-/*
-*	Clase para manejar el comportamiento de los datos de la tabla CLIENTE.
-*/
+
 class ClienteHandler
 {
     /*
     *   Declaración de atributos para el manejo de datos.
     */
     protected $id = null;
+    protected $pin = null;
     protected $nombre = null;
     protected $apellido = null;
     protected $alias = null;
@@ -43,7 +42,22 @@ class ClienteHandler
     {
         if ($this->estado) {
             $_SESSION['idCliente'] = $this->id;
-            $_SESSION['aliasCliente'] = $this->correo;
+            $_SESSION['aliasCliente'] = $this->alias;
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public function checkPassword($password)
+    {
+        $sql = 'SELECT clave_cliente
+                FROM clientes
+                WHERE id_cliente = ?';
+        $params = array($_SESSION['idCliente']);
+        $data = Database::getRow($sql, $params);
+        // Se verifica si la contraseña coincide con el hash almacenado en la base de datos.
+        if (password_verify($password, $data['clave_cliente'])) {
             return true;
         } else {
             return false;
@@ -51,6 +65,15 @@ class ClienteHandler
     }
 
     public function changePassword()
+    {
+        $sql = 'UPDATE clientes
+                SET clave_cliente = ?
+                WHERE id_cliente = ?';
+        $params = array($this->clave, $_SESSION['idCliente']);
+        return Database::executeRow($sql, $params);
+    }
+
+    public function changePasswordRecu()
     {
         $sql = 'UPDATE clientes
                 SET clave_cliente = ?
@@ -84,9 +107,9 @@ class ClienteHandler
 
     public function createRow()
     {
-        $sql = 'INSERT INTO clientes(nombre_cliente, apellido_cliente, alias_cliente, contacto_cliente, correo_cliente, clave_cliente)
+        $sql = 'INSERT INTO clientes(nombre_cliente, apellido_cliente, alias_cliente, correo_cliente, clave_cliente, contacto_cliente)
                 VALUES(?, ?, ?, ?, ?, ?)';
-        $params = array($this->nombre, $this->apellido, $this->alias, $this->contacto, $this->correo, $this->clave);
+        $params = array($this->nombre, $this->apellido, $this->alias, $this->correo, $this->clave, $this->contacto);
         return Database::executeRow($sql, $params);
     }
 
@@ -138,23 +161,8 @@ class ClienteHandler
         $sql = 'UPDATE clientes
                 SET nombre_cliente = ?, apellido_cliente = ?, alias_cliente = ?, contacto_cliente = ?, correo_cliente = ?  
                 WHERE id_cliente = ?';
-        $params = array($this->nombre, $this->apellido, $this->alias, $this->contacto, $this->correo, $this->id);
+        $params = array($this->nombre, $this->apellido, $this->alias, $this->contacto, $this->correo, $_SESSION['idCliente']);
         return Database::executeRow($sql, $params);
-    }
-
-    public function checkPassword($password)
-    {
-        $sql = 'SELECT clave_cliente
-                FROM clientes
-                WHERE id_cliente = ?';
-        $params = array($_SESSION['idCliente']);
-        $data = Database::getRow($sql, $params);
-        // Se verifica si la contraseña coincide con el hash almacenado en la base de datos.
-        if (password_verify($password, $data['clave_cliente'])) {
-            return true;
-        } else {
-            return false;
-        }
     }
 
     public function checkDuplicate($value, $idCliente = null)
@@ -187,5 +195,48 @@ class ClienteHandler
             $params = array($value);
         }
         return Database::getRow($sql, $params);
+    }
+
+
+    //Recuperacion de contraseña 
+
+    /*GENERAR PIN*/
+
+    public function generarPin()
+    {
+        $pinLength = 6;
+        $pin = '';
+        for ($i = 0; $i < $pinLength; $i++) {
+            $pin .= mt_rand(0, 9);
+        }
+        error_log('PIN generado: ' . $pin); // Verifica el PIN generado
+        return $pin;
+    }
+
+    public function verifUs()
+    {
+        $sql = 'SELECT * FROM clientes 
+                WHERE alias_cliente = ?';
+        $params = array($this->alias);
+        return Database::getRow($sql, $params);
+    }
+
+    public function verifPin()
+    {
+        $sql = 'SELECT * FROM clientes 
+                WHERE codigo_recuperacion = ? AND id_cliente = ?';
+        $params = array($this->pin, $_SESSION['clienteRecup']);
+        return Database::getRow($sql, $params);
+    }
+
+    public function updatePin()
+    {
+        $pin = $this->generarPin();
+        error_log('PIN antes de almacenar: ' . $pin); // Verifica el PIN antes de almacenarlo
+        $sql = 'UPDATE clientes 
+                SET codigo_recuperacion = ? 
+                WHERE id_cliente = ?';
+        $params = array($pin, $_SESSION['clienteRecup']);
+        return Database::executeRow($sql, $params);
     }
 }

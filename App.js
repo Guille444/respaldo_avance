@@ -4,12 +4,13 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 // Importa tus componentes de pantalla aquí
 import Sesion from './src/screens/Sesion.js';
-import RecuperarContrasenia from './src/screens/RecuperarContrasenia.js';
-import NuevaContrasenia from './src/screens/NuevaContrasenia.js';
+import RecuperarClave from './src/screens/RecuperarClave.js';
+import NuevaClave from './src/screens/NuevaClave.js';
 import Registro from './src/screens/Registro.js';
 import Contrasenia from './src/screens/Contrasenia.js';
 import TabNavigator from './src/tabNavigator/TabNavigator.js';
 import SplashScreen from './src/screens/SplashScreen.js';
+import VerificarCodigo from './src/screens/VerificarCodigo.js';
 
 export default function App() {
   const Stack = createNativeStackNavigator();
@@ -39,10 +40,11 @@ export default function App() {
         {appIsReady ? (
           <>
             <Stack.Screen name="Sesion" component={Sesion} />
-            <Stack.Screen name="RecuperarContrasenia" component={RecuperarContrasenia} />
-            <Stack.Screen name="NuevaContrasenia" component={NuevaContrasenia} />
+            <Stack.Screen name="RecuperarClave" component={RecuperarClave} />
+            <Stack.Screen name="NuevaClave" component={NuevaClave} />
             <Stack.Screen name="Registro" component={Registro} />
             <Stack.Screen name="Contrasenia" component={Contrasenia} />
+            <Stack.Screen name="VerificarCodigo" component={VerificarCodigo} />
             <Stack.Screen name="TabNavigator" component={TabNavigator} />
           </>
         ) : (

@@ -1,25 +1,22 @@
 import React from 'react';
-import { StyleSheet, Text, TextInput, View, TouchableOpacity, ScrollView, Image } from 'react-native';
+import { StyleSheet, Text, TextInput, View, TouchableOpacity, ScrollView } from 'react-native';
 
-export default function RecuperarContrasenia({ navigation }) {
+export default function NuevaClave({ navigation }) {
 
-    // Función para navegar hacia la pantalla de NuevaContrasenia
-    const irContra = async () => {
-        navigation.navigate('NuevaContrasenia');
+    // Función para navegar hacia la pantalla de Sesion
+    const irLogin = async () => {
+        navigation.navigate('Sesion');
     };
 
     return (
         <ScrollView contentContainerStyle={styles.container}>
             <View style={styles.header}>
-                <TouchableOpacity onPress={() => navigation.goBack()}>
-                    <Image source={require('../img/atras.png')} style={styles.backIcon} />
-                </TouchableOpacity>
-                <Text style={styles.title}>Recuperación de contraseña</Text>
+                <Text style={styles.title}>Actualizar contraseña</Text>
             </View>
-            <Text style={styles.registerText}>Ingresa tu correo electrónico</Text>
-            <TextInput style={styles.input} placeholder="Correo electrónico" placeholderTextColor="#000" keyboardType="email-address" />
-            <TouchableOpacity onPress={irContra} style={styles.button}>
-                <Text style={styles.buttonText}>ENVIAR CÓDIGO</Text>
+            <TextInput style={styles.input} placeholder="Nueva contraseña" placeholderTextColor="#000" secureTextEntry />
+            <TextInput style={styles.input} placeholder="Confirmar contraseña" placeholderTextColor="#000" secureTextEntry />
+            <TouchableOpacity onPress={irLogin} style={styles.button}>
+                <Text style={styles.buttonText}>GUARDAR</Text>
             </TouchableOpacity>
         </ScrollView>
     );
@@ -29,17 +26,18 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#fff',
-        alignItems: 'left',
+        alignItems: 'center',
         justifyContent: 'center',
         padding: 16,
         paddingTop: 50,
     },
     registerText: {
-        justifyContent: 'flex-start'
+        justifyContent: 'center'
     },
     header: {
         flexDirection: 'row',
         alignItems: 'center',
+        justifyContent: 'center',
         width: '100%',
         marginBottom: 24,
     },
@@ -50,6 +48,8 @@ const styles = StyleSheet.create({
     },
     title: {
         fontSize: 32,
+        justifyContent: 'center',
+        fontWeight: 'bold',
     },
     subtitle: {
         fontSize: 18,
@@ -57,14 +57,17 @@ const styles = StyleSheet.create({
         marginBottom: 24,
     },
     input: {
-        marginTop: 12,
+        marginTop: 10,
+        backgroundColor: '#f0f0f0', // Fondo gris claro similar al botón
         width: '100%',
         height: 50,
-        borderColor: '#000',
+        borderColor: '#ddd',
         borderWidth: 1,
         marginBottom: 12,
         paddingLeft: 10,
         fontSize: 16,
+        borderRadius: 8, // Bordes redondeados para el input
+        backgroundColor: '#f9f9f9', // Fondo claro para los campos de entrada
     },
     button: {
         width: '100%',
@@ -72,7 +75,8 @@ const styles = StyleSheet.create({
         backgroundColor: '#000',
         alignItems: 'center',
         justifyContent: 'center',
-        marginTop: 24,
+        marginTop: 10,
+        borderRadius: 8,
     },
     buttonText: {
         color: '#fff',
