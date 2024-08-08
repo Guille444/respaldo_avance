@@ -55,7 +55,7 @@ CREATE TABLE clientes(
     clave_cliente VARCHAR(64) NOT NULL,
     contacto_cliente VARCHAR(9) NOT NULL,
     estado_cliente BOOLEAN NOT NULL,
-    codigo_recuperacion VARCHAR(6) NULL
+    codigo_recuperacion VARCHAR(6) NOT NULL
 );
 
 ALTER TABLE clientes

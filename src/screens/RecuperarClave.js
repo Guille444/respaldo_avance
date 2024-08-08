@@ -4,11 +4,10 @@ import AwesomeAlert from 'react-native-awesome-alerts';
 import * as Constantes from '../../utils/constantes';
 
 export default function RecuperarClave({ navigation }) {
-
-    const ip = Constantes.IP; // Obtiene la IP del servidor desde las constantes
-    const [alias, setAlias] = useState(''); // Estado para el nombre de usuario
-    const [showAlert, setShowAlert] = useState(false); // Estado para mostrar la alerta
-    const [alertMessage, setAlertMessage] = useState(''); // Estado para el mensaje de la alerta
+    const ip = Constantes.IP;
+    const [alias, setAlias] = useState('');
+    const [showAlert, setShowAlert] = useState(false);
+    const [alertMessage, setAlertMessage] = useState('');
 
     const sendMail = async (data) => {
         console.log('Datos recibidos en sendMail:', data);
@@ -16,29 +15,37 @@ export default function RecuperarClave({ navigation }) {
             if (!data || !data.correo_cliente) {
                 throw new Error('El correo electrónico no está definido');
             }
-    
+
             console.log('PIN enviado:', data.codigo_recuperacion);
-    
+
+            console.log('Datos a enviar en sendMail:', {
+                codigo_recuperacion: data.codigo_recuperacion || '',
+                alias_cliente: data.alias_cliente || '',
+                correo_cliente: data.correo_cliente || ''
+            });
+
             const formData = new FormData();
             formData.append('codigo_recuperacion', data.codigo_recuperacion || '');
             formData.append('alias_cliente', data.alias_cliente || '');
             formData.append('correo_cliente', data.correo_cliente || '');
-    
+
             const response = await fetch(`${ip}/libraries/sendCode.php`, {
                 method: 'POST',
                 body: formData,
             });
-    
-            // Verifica si la respuesta es en formato JSON
+
             const contentType = response.headers.get('Content-Type');
             if (contentType && contentType.includes('application/json')) {
                 const responseData = await response.json();
                 console.log('Respuesta del servidor:', responseData);
-    
+
                 if (responseData.status) {
                     setAlertMessage('Revise su correo electrónico');
                     setShowAlert(true);
-                    navigation.navigate('VerificarCodigo');
+                    setTimeout(() => {
+                        setShowAlert(false);
+                        navigation.navigate('VerificarCodigo', { correoCliente: data.correo_cliente });
+                    }, 2000); // Esperar 2 segundos
                 } else {
                     setAlertMessage(responseData.message || 'Error al enviar el correo');
                     setShowAlert(true);
@@ -54,24 +61,29 @@ export default function RecuperarClave({ navigation }) {
             setAlertMessage(error.toString());
             setShowAlert(true);
         }
-    };            
+    };
 
     const handleUs = async () => {
         try {
             const formData = new FormData();
             formData.append('aliasCliente', alias);
-    
+
             const response = await fetch(`${ip}/services/public/cliente.php?action=verifUs`, {
                 method: 'POST',
                 body: formData,
             });
-    
+
             const data = await response.json();
             console.log('Datos recibidos:', data);
-    
+
             if (data.status && data.dataset) {
-                console.log('Datos enviados a sendMail:', data.dataset);
-                sendMail(data.dataset);
+                const codigoRecuperacion = Math.floor(100000 + Math.random() * 900000).toString();
+                const datasetWithCode = {
+                    ...data.dataset,
+                    codigo_recuperacion: codigoRecuperacion,
+                };
+                console.log('Datos enviados a sendMail:', datasetWithCode);
+                sendMail(datasetWithCode);
             } else {
                 setAlertMessage(data.error || 'Error en la respuesta del servidor');
                 setShowAlert(true);
@@ -81,7 +93,7 @@ export default function RecuperarClave({ navigation }) {
             setAlertMessage('Ocurrió un error al iniciar sesión');
             setShowAlert(true);
         }
-    };    
+    };
 
     return (
         <ScrollView contentContainerStyle={styles.container}>
@@ -96,7 +108,7 @@ export default function RecuperarClave({ navigation }) {
                 style={styles.input}
                 placeholder="Alias"
                 value={alias}
-                onChangeText={(text) => setAlias(text)} // Actualiza el estado `alias`
+                onChangeText={(text) => setAlias(text)}
             />
             <TouchableOpacity onPress={handleUs} style={styles.button}>
                 <Text style={styles.buttonText}>ENVIAR</Text>

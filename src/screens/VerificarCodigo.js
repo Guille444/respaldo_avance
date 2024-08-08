@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { StyleSheet, Text, TextInput, View, TouchableOpacity, ScrollView, Alert } from 'react-native';
+import AwesomeAlert from 'react-native-awesome-alerts';
 import * as Constantes from '../../utils/constantes';
 
 export default function VerificarCodigo({ route, navigation }) {
@@ -11,44 +12,59 @@ export default function VerificarCodigo({ route, navigation }) {
     const [number4, setNumber4] = useState('');
     const [number5, setNumber5] = useState('');
     const [number6, setNumber6] = useState('');
+    const [showAlert, setShowAlert] = useState(false);
+    const [alertMessage, setAlertMessage] = useState('');
 
-    const input1Ref = useRef(null);
-    const input2Ref = useRef(null);
-    const input3Ref = useRef(null);
-    const input4Ref = useRef(null);
-    const input5Ref = useRef(null);
-    const input6Ref = useRef(null);
+    // Referencias para los campos de texto
+    const inputRefs = [
+        useRef(null),
+        useRef(null),
+        useRef(null),
+        useRef(null),
+        useRef(null),
+        useRef(null),
+    ];
 
-    const onChangeText = (text, setNumber, nextInputRef) => {
-        if (/^\d$/.test(text)) {
+    // Maneja el cambio de texto en los campos
+    const onChangeText = (text, index) => {
+        if (/^\d$/.test(text)) { // Verifica que el texto ingresado sea un dígito
+            // Actualiza el estado del campo correspondiente
+            const setNumber = [setNumber1, setNumber2, setNumber3, setNumber4, setNumber5, setNumber6][index];
             setNumber(text);
-            if (nextInputRef) {
-                nextInputRef.current.focus();
+
+            // Mueve el foco al siguiente campo si es necesario
+            if (index < 5 && text.length === 1) {
+                inputRefs[index + 1].current.focus();
             }
-        }
-        if (number1 && number2 && number3 && number4 && number5 && number6) {
-            handlePin();
         }
     };
 
-    const onKeyPress = (e, number, setNumber, prevInputRef, nextInputRef) => {
-        if (e.nativeEvent.key === 'Backspace') {
-            if (number) {
-                setNumber('');
-            } else if (prevInputRef) {
-                prevInputRef.current.focus();
+    // Maneja la pulsación de teclas en los campos
+    const onKeyPress = (e, index) => {
+        if (e.nativeEvent.key === 'Backspace') { // Si se presiona la tecla de retroceso
+            // Limpia el campo actual
+            const setNumber = [setNumber1, setNumber2, setNumber3, setNumber4, setNumber5, setNumber6][index];
+            setNumber('');
+
+            // Mueve el foco al campo anterior si el campo actual está vacío
+            if (index > 0) {
+                inputRefs[index - 1].current.focus();
             }
-        } else if (nextInputRef && /^\d$/.test(e.nativeEvent.key)) {
-            nextInputRef.current.focus();
         }
     };
 
+    // Maneja la verificación del PIN
     const handlePin = async () => {
-        const pin = number1 + number2 + number3 + number4 + number5 + number6;
-        if (pin.length === 6) {
+        const pin = [number1, number2, number3, number4, number5, number6].join('');
+
+        // Verifica que el PIN tenga exactamente 6 dígitos
+        if (pin.length === 6 && /^\d{6}$/.test(pin)) {
             try {
                 const formData = new FormData();
-                formData.append('pinCliente', pin);
+                formData.append('correo_cliente', route.params.correoCliente); // Asegúrate de usar el nombre correcto
+                formData.append('codigo_recuperacion', pin); // Asegúrate de usar 'codigo_recuperacion'
+
+                // Envía la solicitud de verificación al servidor
                 const response = await fetch(`${ip}/services/public/cliente.php?action=verifPin`, {
                     method: 'POST',
                     body: formData,
@@ -56,15 +72,30 @@ export default function VerificarCodigo({ route, navigation }) {
 
                 const data = await response.json();
                 console.log(data);
+
                 if (data.status) {
-                    navigation.navigate('NuevaClave');
+                    // Muestra un mensaje de éxito y redirige después de 2 segundos
+                    setAlertMessage('Código verificado exitosamente');
+                    setShowAlert(true);
+                    setTimeout(() => {
+                        setShowAlert(false);
+                        navigation.navigate('NuevaClave');
+                    }, 2000);
                 } else {
-                    Alert.alert('Error', data.error);
+                    // Muestra un mensaje de error
+                    setAlertMessage(data.error || 'Error al verificar el código');
+                    setShowAlert(true);
                 }
             } catch (error) {
                 console.error(error);
-                Alert.alert('Error', 'Ocurrió un error al verificar el código');
+                // Muestra un mensaje de error en caso de excepción
+                setAlertMessage('Ocurrió un error al verificar el código');
+                setShowAlert(true);
             }
+        } else {
+            // Muestra un mensaje si no todos los campos están llenos
+            setAlertMessage('Por favor, complete todos los campos');
+            setShowAlert(true);
         }
     };
 
@@ -74,77 +105,42 @@ export default function VerificarCodigo({ route, navigation }) {
             <Text style={styles.instructions}>Ingresa el código de verificación enviado a tu correo electrónico</Text>
 
             <View style={styles.inputsContainer}>
-                <TextInput
-                    style={styles.input}
-                    ref={input1Ref}
-                    onChangeText={(text) => onChangeText(text, setNumber1, input2Ref)}
-                    onKeyPress={(e) => onKeyPress(e, number1, setNumber1, null, input2Ref)}
-                    value={number1}
-                    placeholder=""
-                    keyboardType="numeric"
-                    maxLength={1}
-                    autoFocus
-                />
-                <TextInput
-                    style={styles.input}
-                    ref={input2Ref}
-                    onChangeText={(text) => onChangeText(text, setNumber2, input3Ref)}
-                    onKeyPress={(e) => onKeyPress(e, number2, setNumber2, input1Ref, input3Ref)}
-                    value={number2}
-                    placeholder=""
-                    keyboardType="numeric"
-                    maxLength={1}
-                />
-                <TextInput
-                    style={styles.input}
-                    ref={input3Ref}
-                    onChangeText={(text) => onChangeText(text, setNumber3, input4Ref)}
-                    onKeyPress={(e) => onKeyPress(e, number3, setNumber3, input2Ref, input4Ref)}
-                    value={number3}
-                    placeholder=""
-                    keyboardType="numeric"
-                    maxLength={1}
-                />
-                <TextInput
-                    style={styles.input}
-                    ref={input4Ref}
-                    onChangeText={(text) => onChangeText(text, setNumber4, input5Ref)}
-                    onKeyPress={(e) => onKeyPress(e, number4, setNumber4, input3Ref, input5Ref)}
-                    value={number4}
-                    placeholder=""
-                    keyboardType="numeric"
-                    maxLength={1}
-                />
-                <TextInput
-                    style={styles.input}
-                    ref={input5Ref}
-                    onChangeText={(text) => onChangeText(text, setNumber5, input6Ref)}
-                    onKeyPress={(e) => onKeyPress(e, number5, setNumber5, input4Ref, input6Ref)}
-                    value={number5}
-                    placeholder=""
-                    keyboardType="numeric"
-                    maxLength={1}
-                />
-                <TextInput
-                    style={styles.input}
-                    ref={input6Ref}
-                    onChangeText={(text) => {
-                        onChangeText(text, setNumber6, null);
-                        if (text.length === 1 && number1 && number2 && number3 && number4 && number5) {
-                            handlePin();
-                        }
-                    }}
-                    onKeyPress={(e) => onKeyPress(e, number6, setNumber6, input5Ref, null)}
-                    value={number6}
-                    placeholder=""
-                    keyboardType="numeric"
-                    maxLength={1}
-                />
+                {Array.from({ length: 6 }).map((_, index) => (
+                    <TextInput
+                        key={index}
+                        style={styles.input}
+                        ref={inputRefs[index]}
+                        onChangeText={(text) => onChangeText(text, index)}
+                        onKeyPress={(e) => onKeyPress(e, index)}
+                        value={[number1, number2, number3, number4, number5, number6][index]}
+                        placeholder=""
+                        keyboardType="numeric"
+                        maxLength={1}
+                    />
+                ))}
             </View>
-
-            <TouchableOpacity onPress={handlePin} style={styles.button}>
+            <TouchableOpacity style={styles.button} onPress={handlePin}>
                 <Text style={styles.buttonText}>VERIFICAR</Text>
             </TouchableOpacity>
+
+            <AwesomeAlert
+                show={showAlert}
+                showProgress={false}
+                title="Alerta"
+                message={alertMessage}
+                closeOnTouchOutside={true}
+                closeOnHardwareBackPress={false}
+                showCancelButton={false}
+                showConfirmButton={true}
+                confirmText="OK"
+                confirmButtonColor="gray"
+                onConfirmPressed={() => setShowAlert(false)}
+                contentContainerStyle={styles.alertContentContainer}
+                titleStyle={styles.alertTitle}
+                messageStyle={styles.alertMessage}
+                confirmButtonTextStyle={styles.alertConfirmButtonText}
+                confirmButtonStyle={styles.alertConfirmButton}
+            />
         </ScrollView>
     );
 }
@@ -152,9 +148,8 @@ export default function VerificarCodigo({ route, navigation }) {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#fff',
-        alignItems: 'center',
         justifyContent: 'center',
+        alignItems: 'center',
         padding: 20,
     },
     title: {
@@ -164,38 +159,53 @@ const styles = StyleSheet.create({
     },
     instructions: {
         fontSize: 16,
-        marginBottom: 20,
         textAlign: 'center',
+        marginBottom: 20,
     },
     inputsContainer: {
         flexDirection: 'row',
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginBottom: 30,
+        justifyContent: 'space-between',
+        width: '80%',
+        marginBottom: 20,
     },
     input: {
-        backgroundColor: '#f9f9f9',
-        width: 50,
+        width: 40,
         height: 50,
-        borderColor: '#ddd',
         borderWidth: 1,
-        paddingHorizontal: 12,
-        fontSize: 35,
-        textAlign: 'center',
-        marginHorizontal: 5,
+        borderColor: '#ccc',
         borderRadius: 8,
+        textAlign: 'center',
+        fontSize: 24,
     },
     button: {
-        width: '100%',
-        height: 50,
         backgroundColor: '#000',
-        alignItems: 'center',
-        justifyContent: 'center',
+        padding: 15,
         borderRadius: 8,
+        alignItems: 'center',
     },
     buttonText: {
         color: '#fff',
-        fontSize: 18,
+        fontSize: 16,
         fontWeight: 'bold',
+    },
+    alertContentContainer: {
+        borderRadius: 10,
+        padding: 20,
+    },
+    alertTitle: {
+        fontSize: 22,
+        fontWeight: 'bold',
+        marginBottom: 10,
+    },
+    alertMessage: {
+        fontSize: 18,
+        marginBottom: 10,
+    },
+    alertConfirmButton: {
+        paddingHorizontal: 20,
+        paddingVertical: 10,
+    },
+    alertConfirmButtonText: {
+        fontSize: 16,
     },
 });

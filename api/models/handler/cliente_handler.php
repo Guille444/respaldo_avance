@@ -202,17 +202,6 @@ class ClienteHandler
 
     /*GENERAR PIN*/
 
-    public function generarPin()
-    {
-        $pinLength = 6;
-        $pin = '';
-        for ($i = 0; $i < $pinLength; $i++) {
-            $pin .= mt_rand(0, 9);
-        }
-        error_log('PIN generado: ' . $pin); // Verifica el PIN generado
-        return $pin;
-    }
-
     public function verifUs()
     {
         $sql = 'SELECT * FROM clientes 
@@ -229,14 +218,37 @@ class ClienteHandler
         return Database::getRow($sql, $params);
     }
 
-    public function updatePin()
+    // Guardar el PIN en la base de datos
+    public function guardarCodigoRecuperacion($codigo)
     {
-        $pin = $this->generarPin();
-        error_log('PIN antes de almacenar: ' . $pin); // Verifica el PIN antes de almacenarlo
+        error_log('Correo en guardarCodigoRecuperacion: ' . $this->correo); // Registro de depuración
+        error_log('Código en guardarCodigoRecuperacion: ' . $codigo); // Registro de depuración
+
         $sql = 'UPDATE clientes 
-                SET codigo_recuperacion = ? 
-                WHERE id_cliente = ?';
-        $params = array($pin, $_SESSION['clienteRecup']);
+            SET codigo_recuperacion = ? 
+            WHERE correo_cliente = ?';
+        $params = array($codigo, $this->correo);
         return Database::executeRow($sql, $params);
+    }
+
+    // Verificar el PIN en la base de datos
+    public function verificarCodigoRecuperacion($codigo)
+    {
+        $sql = 'SELECT id_cliente 
+            FROM clientes 
+            WHERE id_cliente = ? 
+            AND codigo_recuperacion = ?';
+        $params = array($_SESSION['clienteRecup'], $codigo);
+
+        // Agregar logs para depurar
+        error_log("SQL: " . $sql);
+        error_log("Params: " . print_r($params, true));
+
+        $result = Database::getRow($sql, $params);
+
+        // Log del resultado
+        error_log("Resultado: " . print_r($result, true));
+
+        return $result !== false;
     }
 }

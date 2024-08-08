@@ -4,6 +4,7 @@ use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 use PHPMailer\PHPMailer\SMTP;
 
+require_once('../helpers/database.php');
 require_once('./PHPMailer/src/Exception.php');
 require_once('./PHPMailer/src/PHPMailer.php');
 require_once('./PHPMailer/src/SMTP.php');
@@ -19,17 +20,39 @@ if ($method == "OPTIONS") {
     die();
 }
 
-// Cambia los nombres de las claves para que coincidan con los enviados desde React Native
-$pin = isset($_POST['codigo_recuperacion']) ? $_POST['codigo_recuperacion'] : '';
-$alias = isset($_POST['alias_cliente']) ? $_POST['alias_cliente'] : '';
-$email = isset($_POST['correo_cliente']) ? $_POST['correo_cliente'] : '';
+// Verificación de datos
+$pin = isset($_POST['codigo_recuperacion']) ? trim($_POST['codigo_recuperacion']) : '';
+$alias = isset($_POST['alias_cliente']) ? trim($_POST['alias_cliente']) : '';
+$email = isset($_POST['correo_cliente']) ? trim($_POST['correo_cliente']) : '';
 
-// Verifica que se reciben los valores correctamente
-error_log("Alias recibido en PHP: " . $alias);
-error_log("PIN recibido en PHP: " . $pin);
-error_log("Email recibido en PHP: " . $email);
+error_log("Datos recibidos en PHP:");
+error_log("PIN: '" . $pin . "'");
+error_log("Alias: '" . $alias . "'");
+error_log("Email: '" . $email . "'");
+
+// Validación de datos
+if (empty($pin) || empty($alias) || empty($email)) {
+    echo json_encode(['status' => false, 'message' => 'Datos incompletos']);
+    exit();
+}
+
+if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    echo json_encode(['status' => false, 'message' => 'Correo electrónico inválido']);
+    exit();
+}
 
 try {
+    // Guardar el código de recuperación en la base de datos
+    $query = "UPDATE clientes SET codigo_recuperacion = ? WHERE correo_cliente = ?";
+    $values = [$pin, $email];
+    $result = Database::executeRow($query, $values);
+
+    if (!$result) {
+        echo json_encode(['status' => false, 'message' => 'Error al guardar el código de recuperación']);
+        exit();
+    }
+
+    // Configuración y envío del correo electrónico
     $mail = new PHPMailer(true);
     $mail->isSMTP();
     $mail->SMTPDebug = 0;

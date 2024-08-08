@@ -1,11 +1,57 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { StyleSheet, Text, TextInput, View, TouchableOpacity, ScrollView } from 'react-native';
+import AwesomeAlert from 'react-native-awesome-alerts';
+import * as Constantes from '../../utils/constantes';
 
 export default function NuevaClave({ navigation }) {
+    const ip = Constantes.IP;
+    const [newPassword, setNewPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
+    const [showAlert, setShowAlert] = useState(false);
+    const [alertMessage, setAlertMessage] = useState('');
 
-    // Función para navegar hacia la pantalla de Sesion
-    const irLogin = async () => {
-        navigation.navigate('Sesion');
+    const changePassword = async () => {
+        if (newPassword === '' || confirmPassword === '') {
+            setAlertMessage('Por favor, complete ambos campos.');
+            setShowAlert(true);
+            return;
+        }
+
+        if (newPassword !== confirmPassword) {
+            setAlertMessage('Las contraseñas no coinciden.');
+            setShowAlert(true);
+            return;
+        }
+
+        try {
+            const formData = new FormData();
+            formData.append('claveNueva', newPassword);
+            formData.append('confirmarClave', confirmPassword);
+
+            const response = await fetch(`${ip}/services/public/cliente.php?action=changePassword`, {
+                method: 'POST',
+                body: formData,
+            });
+
+            const data = await response.json();
+
+            if (data.status) {
+                setAlertMessage('Contraseña actualizada correctamente.');
+                setShowAlert(true);
+                // Redirige después de 2 segundos
+                setTimeout(() => {
+                    setShowAlert(false);
+                    navigation.navigate('Sesion');
+                }, 2000);
+            } else {
+                setAlertMessage(data.error);
+                setShowAlert(true);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            setAlertMessage('Ocurrió un problema al actualizar la contraseña.');
+            setShowAlert(true);
+        }
     };
 
     return (
@@ -13,52 +59,70 @@ export default function NuevaClave({ navigation }) {
             <View style={styles.header}>
                 <Text style={styles.title}>Actualizar contraseña</Text>
             </View>
-            <TextInput style={styles.input} placeholder="Nueva contraseña" placeholderTextColor="#000" secureTextEntry />
-            <TextInput style={styles.input} placeholder="Confirmar contraseña" placeholderTextColor="#000" secureTextEntry />
-            <TouchableOpacity onPress={irLogin} style={styles.button}>
+            <Text style={styles.instructions}>Ingresa tu nueva contraseña y confírmala</Text>
+            <TextInput
+                style={styles.input}
+                placeholder="Nueva contraseña"
+                secureTextEntry
+                value={newPassword}
+                onChangeText={setNewPassword}
+            />
+            <TextInput
+                style={styles.input}
+                placeholder="Confirmar contraseña"
+                secureTextEntry
+                value={confirmPassword}
+                onChangeText={setConfirmPassword}
+            />
+            <TouchableOpacity onPress={changePassword} style={styles.button}>
                 <Text style={styles.buttonText}>GUARDAR</Text>
             </TouchableOpacity>
+
+            <AwesomeAlert
+                show={showAlert}
+                showProgress={false}
+                title="Alerta"
+                message={alertMessage}
+                closeOnTouchOutside={false}
+                closeOnHardwareBackPress={false}
+                showCancelButton={false}
+                showConfirmButton={true}
+                confirmText="OK"
+                confirmButtonColor="gray"
+                onConfirmPressed={() => setShowAlert(false)}
+                contentContainerStyle={styles.alertContentContainer}
+                titleStyle={styles.alertTitle}
+                messageStyle={styles.alertMessage}
+                confirmButtonTextStyle={styles.alertConfirmButtonText}
+                confirmButtonStyle={styles.alertConfirmButton}
+            />
         </ScrollView>
     );
-};
+}
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#fff',
-        alignItems: 'center',
         justifyContent: 'center',
         padding: 16,
         paddingTop: 50,
     },
-    registerText: {
-        justifyContent: 'center'
-    },
     header: {
-        flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'center',
-        width: '100%',
         marginBottom: 24,
-    },
-    backIcon: {
-        width: 24,
-        height: 24,
-        marginRight: 16,
     },
     title: {
         fontSize: 32,
-        justifyContent: 'center',
         fontWeight: 'bold',
     },
-    subtitle: {
-        fontSize: 18,
-        color: '#000',
-        marginBottom: 24,
+    instructions: {
+        fontSize: 16,
+        textAlign: 'center',
+        marginBottom: 20,
     },
     input: {
         marginTop: 10,
-        backgroundColor: '#f0f0f0', // Fondo gris claro similar al botón
         width: '100%',
         height: 50,
         borderColor: '#ddd',
@@ -66,8 +130,8 @@ const styles = StyleSheet.create({
         marginBottom: 12,
         paddingLeft: 10,
         fontSize: 16,
-        borderRadius: 8, // Bordes redondeados para el input
-        backgroundColor: '#f9f9f9', // Fondo claro para los campos de entrada
+        borderRadius: 8,
+        backgroundColor: '#f9f9f9',
     },
     button: {
         width: '100%',
@@ -82,5 +146,25 @@ const styles = StyleSheet.create({
         color: '#fff',
         fontSize: 18,
         fontWeight: 'bold',
+    },
+    alertContentContainer: {
+        borderRadius: 10,
+        padding: 20,
+    },
+    alertTitle: {
+        fontSize: 22,
+        fontWeight: 'bold',
+        marginBottom: 10,
+    },
+    alertMessage: {
+        fontSize: 18,
+        marginBottom: 10,
+    },
+    alertConfirmButton: {
+        paddingHorizontal: 20,
+        paddingVertical: 10,
+    },
+    alertConfirmButtonText: {
+        fontSize: 16,
     },
 });
