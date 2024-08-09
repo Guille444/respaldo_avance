@@ -5,6 +5,7 @@ import { Picker } from '@react-native-picker/picker';
 import MultiSelect from 'react-native-multiple-select';
 import { useFocusEffect } from '@react-navigation/native';
 import * as Constantes from '../../utils/constantes';
+import AwesomeAlert from 'react-native-awesome-alerts';
 
 export default function Citas({ navigation }) {
   const ip = Constantes.IP; // Obtiene la IP del servidor desde las constantes
@@ -16,6 +17,9 @@ export default function Citas({ navigation }) {
   const [vehiculos, setVehiculos] = useState([]);
   const [servicios, setServicios] = useState([]);
   const [vehiculo, setVehiculo] = useState('');
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [alertMessage, setAlertMessage] = useState('');
+  const [alertTitle, setAlertTitle] = useState('');
 
   useEffect(() => {
     navigation.setOptions({
@@ -111,28 +115,34 @@ export default function Citas({ navigation }) {
 
   const manejarAgendar = async () => {
     if (!vehiculo) {
-      alert('Por favor, seleccione un vehículo.');
+      setAlertTitle('Error');
+      setAlertMessage('Por favor, seleccione un vehículo.');
+      setAlertVisible(true);
       return;
     }
-
+  
     if (serviciosSeleccionados.length === 0) {
-      alert('Por favor, seleccione al menos un servicio.');
+      setAlertTitle('Error');
+      setAlertMessage('Por favor, seleccione al menos un servicio.');
+      setAlertVisible(true);
       return;
     }
-
+  
     if (!fecha) {
-      alert('Por favor, seleccione una fecha.');
+      setAlertTitle('Error');
+      setAlertMessage('Por favor, seleccione una fecha.');
+      setAlertVisible(true);
       return;
     }
-
+  
     const cita = {
       id_vehiculo: vehiculo,
       id_servicio: serviciosSeleccionados,
       fecha_cita: fecha.toISOString().split('T')[0],
     };
-
+  
     console.log('Datos enviados:', cita);
-
+  
     try {
       const respuesta = await fetch(`${ip}/services/public/citas.php?action=createRow`, {
         method: 'POST',
@@ -153,31 +163,45 @@ export default function Citas({ navigation }) {
         const datos = JSON.parse(textoRespuesta);
         console.log('Datos procesados:', datos);
   
-        if (datos.status === 1) {
-          alert('Cita agendada con éxito');
+        if (datos.status) { // Cambiado para manejar el campo `status` booleano
+          setAlertTitle('Éxito');
+          setAlertMessage(datos.message || 'Cita agendada con éxito');
+          setAlertVisible(true);
           // Limpiar los campos después de un registro exitoso
           setFecha(new Date());
           setVehiculo('');
           setServiciosSeleccionados([]);
         } else {
           console.error('Error en la respuesta:', datos.error);
-          alert('Error al agendar la cita: ' + datos.error);
+          setAlertTitle('Error');
+          setAlertMessage('Error al agendar la cita: ' + datos.error);
+          setAlertVisible(true);
         }
       } catch (error) {
         console.error('Error al parsear la respuesta JSON:', error);
-        alert('Error al procesar la respuesta del servidor.');
+        setAlertTitle('Error');
+        setAlertMessage('Error al procesar la respuesta del servidor.');
+        setAlertVisible(true);
       }
     } catch (error) {
       console.error('Error al agendar la cita:', error);
-      alert('Error al agendar la cita. Por favor, inténtelo nuevamente.');
+      setAlertTitle('Error');
+      setAlertMessage('Error al agendar la cita. Por favor, inténtelo nuevamente.');
+      setAlertVisible(true);
     }
   };
+  
 
   const renderHeader = () => (
     <View style={styles.headerContainer}>
       <Text style={styles.titulo}>Agendar cita</Text>
     </View>
   );
+
+  // Función para navegar hacia la pantalla de Citas agendadas
+  const irCitas = async () => {
+    navigation.navigate('CitasRegistradas');
+  };
 
   return (
     <View style={styles.container}>
@@ -219,14 +243,16 @@ export default function Citas({ navigation }) {
                 selectedItemIconColor="#000"
                 itemTextColor="#000"
                 displayKey="nombre_servicio"
-                searchInputStyle={{ color: '#000' }}
-                submitButtonColor="#000"
+                searchInputStyle={{ color: '#000' }} // Texto en negro
+                submitButtonColor="#000" // Botón negro
                 submitButtonText="Seleccionar"
                 styleDropdownMenu={styles.multiSelectDropdown}
                 styleDropdownMenuSubsection={styles.multiSelectDropdownSubsection}
                 styleTextDropdown={styles.multiSelectTextDropdown}
                 styleListContainer={styles.multiSelectListContainer}
+                styleRowList={styles.multiSelectRowList}
               />
+
               {servicios.length === 0 && (
                 <Text style={styles.noRecordsText}>No se encontraron servicios</Text>
               )}
@@ -250,8 +276,32 @@ export default function Citas({ navigation }) {
             <TouchableOpacity style={styles.boton} onPress={manejarAgendar}>
               <Text style={styles.textoBoton}>AGENDAR</Text>
             </TouchableOpacity>
+            <TouchableOpacity style={styles.boton2} onPress={irCitas}>
+              <Text style={styles.textoBoton}>VER CITAS AGENDADAS</Text>
+            </TouchableOpacity>
           </View>
         }
+      />
+      <AwesomeAlert
+        show={alertVisible}
+        showProgress={false}
+        title={alertTitle}
+        message={alertMessage}
+        closeOnTouchOutside={false}
+        closeOnHardwareBackPress={false}
+        showConfirmButton={true}
+        confirmText="OK"
+        confirmButtonColor="gray"
+        onConfirmPressed={() => {
+          setAlertVisible(false);
+          if (alertTitle === 'Éxito') {
+            navigation.goBack(); // Redirige a la pantalla anterior si es exitoso
+          }
+        }}
+        titleStyle={styles.alertTitle}
+        messageStyle={styles.alertMessage}
+        confirmButtonStyle={styles.alertConfirmButton}
+        confirmButtonTextStyle={styles.alertConfirmButtonText}
       />
     </View>
   );
@@ -273,7 +323,7 @@ const styles = StyleSheet.create({
     padding: 16,
     backgroundColor: '#fff', // Asegura que el fondo sea blanco
     borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
+    borderBottomColor: '#f9f9f9',
     alignItems: 'center',
   },
   titulo: {
@@ -286,9 +336,9 @@ const styles = StyleSheet.create({
   },
   contenedorPicker: {
     width: '100%',
-    borderColor: '#000',
-    borderWidth: 1,
-    borderRadius: 4,
+    borderWidth: 0, // Elimina el borde
+    borderColor: '#f9f9f9',
+    borderRadius: 8,
     marginBottom: 16,
     overflow: 'hidden',
     backgroundColor: '#fff', // Asegura que el fondo sea blanco
@@ -297,23 +347,24 @@ const styles = StyleSheet.create({
     height: 50,
     width: '100%',
     backgroundColor: '#fff',
+    borderWidth: 0, // Elimina el borde
   },
   contenedorMultiSelect: {
     width: '100%',
-    borderColor: '#000',
     borderWidth: 1,
+    borderColor: '#ddd',
     borderRadius: 4,
     marginBottom: 16,
     paddingHorizontal: 10,
-    backgroundColor: '#fff', // Asegura que el fondo sea blanco
+    backgroundColor: '#f9f9f9', // Asegura que el fondo sea blanco
   },
   contenedorFecha: {
     width: '100%',
-    borderColor: '#000',
+    borderColor: '#ddd',
     borderWidth: 1,
-    borderRadius: 4,
+    borderRadius: 8,
     padding: 10,
-    backgroundColor: '#fff', // Asegura que el fondo sea blanco
+    backgroundColor: '#f0f0f0', // Asegura que el fondo sea blanco
   },
   etiqueta: {
     fontSize: 16,
@@ -323,6 +374,7 @@ const styles = StyleSheet.create({
   textoFecha: {
     fontSize: 16,
     color: '#000',
+    fontWeight: 'underline',
   },
   selectorDeFecha: {
     width: '100%',
@@ -335,27 +387,75 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     alignItems: 'center',
     marginBottom: 16,
-    marginTop: 10,
+    marginTop: 20,
+  },
+  boton2: {
+    width: '100%',
+    padding: 12,
+    backgroundColor: '#FEAF00',
+    borderRadius: 4,
+    alignItems: 'center',
+    marginBottom: 16,
   },
   textoBoton: {
     color: '#fff',
+    fontSize: 16,
     fontWeight: 'bold',
   },
   multiSelectDropdown: {
-    backgroundColor: '#fff', // Asegura que el fondo sea blanco
+    backgroundColor: '#f9f9f9', // Asegura que el fondo sea blanco
   },
   multiSelectDropdownSubsection: {
-    backgroundColor: '#fff', // Asegura que el fondo sea blanco
+    backgroundColor: '#f9f9f9', // Asegura que el fondo sea blanco
   },
   multiSelectTextDropdown: {
     color: '#000', // Texto en negro
   },
   multiSelectListContainer: {
-    backgroundColor: '#fff', // Asegura que el fondo sea blanco
+    backgroundColor: '#f9f9f9', // Asegura que el fondo sea blanco
   },
   noRecordsText: {
     textAlign: 'center',
     color: '#777',
     marginTop: 10,
+  },
+  alertTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  alertContentContainer: {
+    borderRadius: 10,
+    padding: 20,
+  },
+  alertTitle: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  alertMessage: {
+    fontSize: 18,
+    marginBottom: 10,
+  },
+  alertConfirmButton: {
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+  },
+  alertConfirmButtonText: {
+    fontSize: 16,
+  },
+  multiSelectDropdown: {
+    backgroundColor: '#f9f9f9', // Fondo gris
+  },
+  multiSelectDropdownSubsection: {
+    backgroundColor: '#f9f9f9', // Fondo gris
+  },
+  multiSelectTextDropdown: {
+    color: '#000', // Texto en negro
+  },
+  multiSelectListContainer: {
+    backgroundColor: '#f9f9f9', // Fondo gris
+  },
+  multiSelectRowList: {
+    backgroundColor: '#f9f9f9', // Fondo gris en las filas
   },
 });

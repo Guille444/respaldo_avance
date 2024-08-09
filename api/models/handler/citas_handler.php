@@ -87,10 +87,9 @@ class CitasHandler
         file_put_contents('php://stderr', "Servicios recibidos: " . json_encode($services) . "\n", FILE_APPEND);
 
         // Insertar la cita
-        $sql = 'INSERT INTO citas(id_cliente, id_vehiculo, fecha_cita)
-             VALUES(?, ?, ?)';
+        $sql = 'INSERT INTO citas(id_cliente, id_vehiculo, fecha_cita) VALUES(?, ?, ?)';
         $params = array($_SESSION['idCliente'], $this->id_vehiculo, $this->fecha_cita);
-        $citaId = Database::executeRow($sql, $params);
+        $citaId = Database::getLastRow($sql, $params);
 
         if ($citaId) {
             // Log del ID de la cita creada
@@ -99,15 +98,19 @@ class CitasHandler
             // Insertar los servicios asociados
             $sql = 'INSERT INTO cita_servicios(id_cita, id_servicio) VALUES(?, ?)';
             foreach ($services as $serviceId) {
+                // Log para cada inserción de servicio
+                file_put_contents('php://stderr', "Insertando servicio con ID: $serviceId en la cita ID: $citaId\n", FILE_APPEND);
                 $result = Database::executeRow($sql, array($citaId, $serviceId));
                 if (!$result) {
+                    // Log en caso de error en la inserción de servicio
                     file_put_contents('php://stderr', "Error al insertar el servicio con ID: $serviceId\n", FILE_APPEND);
+                    return false; // Asegúrate de retornar false si ocurre un error en la inserción
                 }
             }
             return true;
         } else {
             // Log en caso de error en la creación de la cita
-            file_put_contents('php://stderr', "Error al crear la cita\n", FILE_APPEND);
+            file_put_contents('php://stderr', "Error al crear la cita. ID de cita: $citaId\n", FILE_APPEND);
         }
         return false;
     }

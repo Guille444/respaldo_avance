@@ -186,6 +186,11 @@ export default function Vehiculo({ navigation }) {
     }, [])
   );
 
+  // Función para navegar hacia la pantalla de vehiculos registrados
+  const irVehiculos = async () => {
+    navigation.navigate('VehiculosRegistrados');
+  };
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.title}>Registrar vehículo</Text>
@@ -258,7 +263,7 @@ export default function Vehiculo({ navigation }) {
       <TouchableOpacity style={styles.button} onPress={registrarVehiculo}>
         <Text style={styles.buttonText}>REGISTRAR VEHICULO</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.button2}>
+      <TouchableOpacity style={styles.button2} onPress={irVehiculos}>
         <Text style={styles.buttonText}>VER MIS VEHICULOS</Text>
       </TouchableOpacity>
 

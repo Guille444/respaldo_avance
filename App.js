@@ -11,6 +11,8 @@ import Contrasenia from './src/screens/Contrasenia.js';
 import TabNavigator from './src/tabNavigator/TabNavigator.js';
 import SplashScreen from './src/screens/SplashScreen.js';
 import VerificarCodigo from './src/screens/VerificarCodigo.js';
+import VehiculosRegistrados from './src/screens/VehiculosRegistrados.js';
+import CitasRegistradas from './src/screens/CitasRegistradas.js';
 
 export default function App() {
   const Stack = createNativeStackNavigator();
@@ -46,6 +48,9 @@ export default function App() {
             <Stack.Screen name="Contrasenia" component={Contrasenia} />
             <Stack.Screen name="VerificarCodigo" component={VerificarCodigo} />
             <Stack.Screen name="TabNavigator" component={TabNavigator} />
+            <Stack.Screen name="VehiculosRegistrados" component={VehiculosRegistrados} />
+            <Stack.Screen name="CitasRegistradas" component={CitasRegistradas} />
+
           </>
         ) : (
           <Stack.Screen name="SplashScreen" component={SplashScreen} />

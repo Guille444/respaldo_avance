@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { StyleSheet, Text, TextInput, View, TouchableOpacity, ScrollView, Image } from 'react-native';
 import AwesomeAlert from 'react-native-awesome-alerts';
+import { useFocusEffect } from '@react-navigation/native';
 import * as Constantes from '../../utils/constantes';
 
 export default function RecuperarClave({ navigation }) {
@@ -94,6 +95,15 @@ export default function RecuperarClave({ navigation }) {
             setShowAlert(true);
         }
     };
+
+    // Dentro de tu componente RecuperarClave
+    useFocusEffect(
+        React.useCallback(() => {
+            return () => {
+                setAlias(''); // Borra el alias cuando la pantalla pierde el foco
+            };
+        }, [])
+    );
 
     return (
         <ScrollView contentContainerStyle={styles.container}>
