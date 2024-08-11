@@ -13,6 +13,7 @@ import SplashScreen from './src/screens/SplashScreen.js';
 import VerificarCodigo from './src/screens/VerificarCodigo.js';
 import VehiculosRegistrados from './src/screens/VehiculosRegistrados.js';
 import CitasRegistradas from './src/screens/CitasRegistradas.js';
+import EditarVehiculo from './src/screens/EditarVehiculo.js';
 
 export default function App() {
   const Stack = createNativeStackNavigator();
@@ -50,6 +51,7 @@ export default function App() {
             <Stack.Screen name="TabNavigator" component={TabNavigator} />
             <Stack.Screen name="VehiculosRegistrados" component={VehiculosRegistrados} />
             <Stack.Screen name="CitasRegistradas" component={CitasRegistradas} />
+            <Stack.Screen name="EditarVehiculo" component={EditarVehiculo} />
 
           </>
         ) : (
