@@ -9,6 +9,7 @@ export default function EditarVehiculo({ route, navigation }) {
     const ip = Constantes.IP;
     const { vehiculoId } = route.params; // Obtener el ID del vehículo desde las props
 
+    // Estados para manejar datos y mostrar la interfaz
     const [modelos, setModelos] = useState([]);
     const [marcas, setMarcas] = useState([]);
     const [modelo, setModelo] = useState('');
@@ -30,6 +31,7 @@ export default function EditarVehiculo({ route, navigation }) {
         onConfirm: () => { },
     });
 
+    // Funcion para elegin una marca y moodelos de la marca
     const fetchData = async (endpoint, params, setData, setError, setLoading) => {
         setLoading(true);
         try {
@@ -57,10 +59,12 @@ export default function EditarVehiculo({ route, navigation }) {
         }
     };
 
+    // Funcion para obtener las marcas
     const fetchMarcas = useCallback(async () => {
         await fetchData('getMarcas', null, setMarcas, setErrorMarcas, setLoadingMarcas);
     }, [ip]);
 
+    // Funcion para obtener los modelos
     const fetchModelos = useCallback(async (marcaSeleccionada) => {
         if (!marcaSeleccionada) {
             setModelos([]);
@@ -70,6 +74,7 @@ export default function EditarVehiculo({ route, navigation }) {
         await fetchData('getModelosByMarca', { id_marca: marcaSeleccionada }, setModelos, setErrorModelos, setLoadingModelos);
     }, [ip]);
 
+    // Funcion para elegir un vehiuclo y traer sus detalles
     const fetchVehiculoDetails = useCallback(async () => {
         try {
             const response = await fetch(`${ip}/services/public/vehiculo.php?action=readOne`, {
@@ -120,6 +125,7 @@ export default function EditarVehiculo({ route, navigation }) {
         return regex.test(matricula);
     };
 
+    // Funcion para actualizar un vehiculo
     const actualizarVehiculo = async () => {
         if (!marca || !modelo || !año || !matricula || !color || !vin) {
             showAlert('Error', 'Todos los campos deben ser completados.');

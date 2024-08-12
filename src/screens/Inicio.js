@@ -32,9 +32,6 @@ export default function Inicio({ navigation }) {
     return (
         <View style={styles.container}>
             <Image source={require('../img/llanta.png')} style={styles.image} />
-            <TouchableOpacity>
-                <Text style={styles.welcomeText}>Bienvenid@</Text>
-            </TouchableOpacity>
             <AwesomeAlert
                 show={alertVisible}
                 showProgress={false}

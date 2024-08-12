@@ -7,6 +7,8 @@ import { useNavigation } from '@react-navigation/native'; // Importa useNavigati
 import { useFocusEffect } from '@react-navigation/native';
 
 export default function VehiculosRegistrados() {
+
+      // Estados para manejar datos y mostrar la interfaz
     const [vehiculos, setVehiculos] = useState([]);
     const [showAlert, setShowAlert] = useState(false);
     const [alertType, setAlertType] = useState(''); // 'success', 'error', or 'confirm'
@@ -15,6 +17,7 @@ export default function VehiculosRegistrados() {
     const ip = Constantes.IP; // Usar la IP del archivo de constantes
     const navigation = useNavigation(); // Obtén el objeto navigation
 
+    // Funcion para traer los vehiculos del cliente
     useFocusEffect(
         React.useCallback(() => {
             fetch(`${ip}/services/public/vehiculo.php?action=readByCliente`)
@@ -52,6 +55,7 @@ export default function VehiculosRegistrados() {
         navigation.navigate('EditarVehiculo', { vehiculoId });
     };
 
+    // Funcion para eliminar un vehiculo
     const handleDelete = (vehiculoId) => {
         setSelectedVehiculoId(vehiculoId);
         setAlertMessage('¿Estás seguro de que deseas eliminar este vehículo?');

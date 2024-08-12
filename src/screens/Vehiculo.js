@@ -6,8 +6,9 @@ import * as Constantes from '../../utils/constantes';
 import { useFocusEffect } from '@react-navigation/native';
 
 export default function Vehiculo({ navigation }) {
-  const ip = Constantes.IP;
+  const ip = Constantes.IP; // Obtiene la IP del servidor desde las constantes
 
+  // Estados para manejar datos y mostrar la interfaz
   const [modelos, setModelos] = useState([]);
   const [marcas, setMarcas] = useState([]);
   const [modelo, setModelo] = useState('');
@@ -29,8 +30,9 @@ export default function Vehiculo({ navigation }) {
     onConfirm: () => { },
   });
 
-  const alertShown = useRef(false); // Using useRef for the flag
+  const alertShown = useRef(false);
 
+  // Funcion para elegin una marca y moodelos de la marca
   const fetchData = async (endpoint, params, setData, setError, setLoading) => {
     setLoading(true);
     try {
@@ -58,10 +60,12 @@ export default function Vehiculo({ navigation }) {
     }
   };
 
+  // Funcion para obtener las marcas
   const fetchMarcas = useCallback(async () => {
     await fetchData('getMarcas', null, setMarcas, setErrorMarcas, setLoadingMarcas);
   }, [ip]);
 
+  // Funcion para obtener los modelos
   const fetchModelos = useCallback(async (marcaSeleccionada) => {
     if (!marcaSeleccionada) {
       setModelos([]);
@@ -93,6 +97,7 @@ export default function Vehiculo({ navigation }) {
     return regex.test(matricula);
   };
 
+  // Funcion para registrar un vehiculo
   const registrarVehiculo = async () => {
     if (!marca || !modelo || !año || !matricula || !color || !vin) {
       showAlert('Error', 'Todos los campos deben ser completados.');
@@ -163,7 +168,7 @@ export default function Vehiculo({ navigation }) {
       onConfirm: () => {
         setAlertConfig(prevConfig => ({ ...prevConfig, show: false }));
         if (onConfirm) onConfirm();
-        alertShown.current = true; // Set the flag to true when showing the alert
+        alertShown.current = true; // Alerta
       }
     }));
   };
@@ -181,7 +186,7 @@ export default function Vehiculo({ navigation }) {
     useCallback(() => {
       return () => {
         clearFields();
-        alertShown.current = false; // Reset the flag when focusing out
+        alertShown.current = false;
       };
     }, [])
   );
